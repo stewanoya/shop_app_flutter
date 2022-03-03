@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+
 import '../models/product.dart';
+import '../widgets/product_item.dart';
 
 class ProductsOverviewScreen extends StatelessWidget {
   final List<Product> loadedProducts = [
@@ -49,7 +51,11 @@ class ProductsOverviewScreen extends StatelessWidget {
         padding: const EdgeInsets.all(10.0),
         itemCount: loadedProducts.length,
         // ** Will define how every grid item is built, every grid cell
-        itemBuilder: (context, index) => Container(),
+        itemBuilder: (context, index) => ProductItem(
+          loadedProducts[index].id,
+          loadedProducts[index].title,
+          loadedProducts[index].imageUrl,
+        ),
         // ** defines how the grid will be structured
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
