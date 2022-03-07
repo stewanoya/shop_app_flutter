@@ -57,6 +57,7 @@ class CartScreen extends StatelessWidget {
               // we needed to access the values
               // because the values are "Iterable", using to list makes it a regular list to work with.
               id: cart.items.values.toList()[index].id,
+              productId: cart.items.keys.toList()[index],
               price: cart.items.values.toList()[index].price,
               title: cart.items.values.toList()[index].title,
               quantity: cart.items.values.toList()[index].quantity,
