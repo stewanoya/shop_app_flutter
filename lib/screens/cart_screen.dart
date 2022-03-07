@@ -1,6 +1,7 @@
 import "package:flutter/material.dart";
 import 'package:provider/provider.dart';
 import '../providers/cart.dart' show Cart;
+import '../providers/orders.dart';
 import '../widgets/cart_item.dart';
 
 class CartScreen extends StatelessWidget {
@@ -39,7 +40,16 @@ class CartScreen extends StatelessWidget {
                   ),
                   FlatButton(
                     child: Text("Order Now!"),
-                    onPressed: null,
+                    onPressed: () {
+                      // don't really care about listening to changes
+                      // I just want to dispatch this action
+                      Provider.of<Orders>(context, listen: false).addOrder(
+                        cart.items.values.toList(),
+                        cart.totalAmount,
+                      );
+                      // clear cart is still listening to changes because it is in the widget context with the provider
+                      cart.clearCart();
+                    },
                   ),
                 ],
               ),

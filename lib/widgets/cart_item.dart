@@ -62,7 +62,7 @@ class CartItem extends StatelessWidget {
                   ),
                 ),
               ),
-              title: Text(title!),
+              title: Text(title),
               subtitle: Text("Total: \$${total}"),
               trailing: Text("Quantity: $quantity"),
             ),
