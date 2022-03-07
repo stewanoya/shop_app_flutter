@@ -6,11 +6,12 @@ class CartItem {
   final int quantity;
   final double price;
 
-  CartItem(
-      {required this.id,
-      required this.title,
-      required this.quantity,
-      required this.price});
+  CartItem({
+    required this.id,
+    required this.title,
+    required this.quantity,
+    required this.price,
+  });
 }
 
 class Cart with ChangeNotifier {
@@ -21,7 +22,16 @@ class Cart with ChangeNotifier {
   }
 
   int get itemCount {
-    return _items.length;
+    return _items == null ? 0 : _items.length;
+  }
+
+  double get totalAmount {
+    var total = 0.0;
+    _items.forEach((key, cartItem) {
+      total += cartItem.price * cartItem.quantity;
+    });
+    notifyListeners();
+    return total;
   }
 
   void addItem(
@@ -40,9 +50,14 @@ class Cart with ChangeNotifier {
       notifyListeners();
     } else {
       _items.putIfAbsent(
-          productId,
-          () => CartItem(
-              id: DateTime.now(), title: title, quantity: 1, price: price));
+        productId,
+        () => CartItem(
+          id: DateTime.now(),
+          title: title,
+          quantity: 1,
+          price: price,
+        ),
+      );
       notifyListeners();
     }
   }
