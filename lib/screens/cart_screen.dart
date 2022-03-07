@@ -1,6 +1,7 @@
 import "package:flutter/material.dart";
 import 'package:provider/provider.dart';
-import '../providers/cart.dart';
+import '../providers/cart.dart' show Cart;
+import '../widgets/cart_item.dart';
 
 class CartScreen extends StatelessWidget {
   static const routeName = "/cart";
@@ -44,6 +45,23 @@ class CartScreen extends StatelessWidget {
               ),
             ),
           ),
+          SizedBox(
+            height: 10,
+          ),
+          // will take as much space as available
+          Expanded(
+              child: ListView.builder(
+            itemCount: cart.itemCount,
+            itemBuilder: (context, index) => CartItem(
+              // because our list of items from provider was a map (a js Object)
+              // we needed to access the values
+              // because the values are "Iterable", using to list makes it a regular list to work with.
+              id: cart.items.values.toList()[index].id,
+              price: cart.items.values.toList()[index].price,
+              title: cart.items.values.toList()[index].title,
+              quantity: cart.items.values.toList()[index].quantity,
+            ),
+          )),
         ],
       ),
     );
