@@ -43,32 +43,34 @@ class CartItem extends StatelessWidget {
       ),
       // says which way dismissible can be dismissed
       direction: DismissDirection.endToStart,
-      confirmDismiss: (direction) => showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => WillPopScope(
-          onWillPop: () async => false,
-          child: AlertDialog(
-            title: Text("Confirm Delete"),
-            content:
-                Text("Are you sure you want to remove the item from the cart?"),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop(false);
-                },
-                child: Text("No"),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop(true);
-                },
-                child: Text("Yes"),
-              ),
-            ],
+      confirmDismiss: (direction) {
+        return showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => WillPopScope(
+            onWillPop: () async => false,
+            child: AlertDialog(
+              title: Text("Confirm Delete"),
+              content: Text(
+                  "Are you sure you want to remove the item from the cart?"),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(false);
+                  },
+                  child: Text("No"),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(true);
+                  },
+                  child: Text("Yes"),
+                ),
+              ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
       onDismissed: (direction) {
         Provider.of<Cart>(context, listen: false).removeItem(productId);
       },
