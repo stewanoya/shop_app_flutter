@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 
 class Products with ChangeNotifier {
   List<Product> _items = [
+    /*
     Product(
       id: 'p1',
       title: 'Red Shirt',
@@ -36,7 +37,7 @@ class Products with ChangeNotifier {
       price: 49.99,
       imageUrl:
           'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Cast-Iron-Pan.jpg/1024px-Cast-Iron-Pan.jpg',
-    ),
+    ),*/
   ];
 
   // var _showFavoritesOnly = false;
@@ -65,28 +66,52 @@ class Products with ChangeNotifier {
     return _items.firstWhere((element) => element.id == id);
   }
 
-  void addProduct(Product product) {
+  Future<void> fetchAndSetProducts() async {
     final url = Uri.parse(
         'https://flutter-shop-351da-default-rtdb.firebaseio.com/products.json');
-    http
-        .post(url,
-            body: json.encode({
-              'title': product.title,
-              'description': product.description,
-              'imageUrl': product.imageUrl,
-              'price': product.price,
-              'isFavorite': product.isFavorite,
-            }))
-        .then((res) {
+    try {
+      final List<Product> loadedProducts = [];
+      var response = await http.get(url);
+      var data = json.decode(response.body) as Map<String, dynamic>;
+      data.forEach((id, productData) {
+        loadedProducts.add(Product(
+            id: id,
+            title: productData['title'],
+            description: productData['description'],
+            price: productData['price'],
+            isFavorite: productData['isFavorite'],
+            imageUrl: productData['imageUrl']));
+      });
+      _items = [...loadedProducts];
+      notifyListeners();
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  Future<void> addProduct(Product product) async {
+    final url = Uri.parse(
+        'https://flutter-shop-351da-default-rtdb.firebaseio.com/products.json');
+    try {
+      var response = await http.post(url,
+          body: json.encode({
+            'title': product.title,
+            'description': product.description,
+            'imageUrl': product.imageUrl,
+            'price': product.price,
+            'isFavorite': product.isFavorite,
+          }));
       final newProduct = Product(
-          id: json.decode(res.body)['name'],
+          id: json.decode(response.body)['name'],
           title: product.title,
           description: product.description,
           price: product.price,
           imageUrl: product.imageUrl);
       _items.add(newProduct);
       notifyListeners();
-    });
+    } catch (err) {
+      throw err;
+    }
   }
 
   void updateProduct(Product updatedProduct) {
