@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import './cart.dart';
 import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
 
 class OrderItem {
   final String id;
@@ -23,16 +26,65 @@ class Orders with ChangeNotifier {
     return [..._orders];
   }
 
-  void addOrder(List<CartItem> cartProducts, double total) {
+  Future<void> fetchAndSetOrders() async {
+    final url = Uri.parse(
+        'https://flutter-shop-351da-default-rtdb.firebaseio.com/orders.json');
+    final response = await http.get(url);
+    final List<OrderItem> loadedOrders = [];
+    final extractedData = json.decode(response.body) as Map<String, dynamic>;
+    if (extractedData == null) {
+      return;
+    }
+    extractedData.forEach((orderId, orderData) {
+      loadedOrders.add(OrderItem(
+        id: orderId,
+        amount: orderData['amount'],
+        dateTime: DateTime.parse(
+          orderData['dateTime'],
+        ),
+        products: (orderData['products'] as List<dynamic>)
+            .map(
+              (item) => CartItem(
+                id: item['id'],
+                price: item['price'],
+                quantity: item['quantity'],
+                title: item['title'],
+              ),
+            )
+            .toList(),
+      ));
+    });
+    _orders = loadedOrders.reversed.toList();
+    notifyListeners();
+  }
+
+  Future<void> addOrder(List<CartItem> cartProducts, double total) async {
     // .add would add it to the end of the list (Like push)
     // insert with a first arguement of 0 will always add it to the START of teh list
+    final url = Uri.parse(
+        'https://flutter-shop-351da-default-rtdb.firebaseio.com/orders.json');
+    final timestamp = DateTime.now();
+    var response = await http.post(url,
+        body: json.encode({
+          'amount': total,
+          'dateTime': timestamp.toIso8601String(),
+          'products': cartProducts
+              .map((item) => {
+                    'id': item.id.toString(),
+                    'title': item.title,
+                    'quantity': item.quantity,
+                    'price': item.price,
+                  })
+              .toList(),
+        }));
     _orders.insert(
       0,
       OrderItem(
-          id: DateTime.now().toString(),
-          amount: total,
-          dateTime: DateTime.now(),
-          products: cartProducts),
+        id: json.decode(response.body)['name'],
+        amount: total,
+        dateTime: timestamp,
+        products: cartProducts,
+      ),
     );
     notifyListeners();
   }

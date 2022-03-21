@@ -38,19 +38,7 @@ class CartScreen extends StatelessWidget {
                     ),
                     backgroundColor: Theme.of(context).primaryColor,
                   ),
-                  FlatButton(
-                    child: Text("Order Now!"),
-                    onPressed: () {
-                      // don't really care about listening to changes
-                      // I just want to dispatch this action
-                      Provider.of<Orders>(context, listen: false).addOrder(
-                        cart.items.values.toList(),
-                        cart.totalAmount,
-                      );
-                      // clear cart is still listening to changes because it is in the widget context with the provider
-                      cart.clearCart();
-                    },
-                  ),
+                  OrderButton(cart: cart),
                 ],
               ),
             ),
@@ -75,6 +63,52 @@ class CartScreen extends StatelessWidget {
           )),
         ],
       ),
+    );
+  }
+}
+
+class OrderButton extends StatefulWidget {
+  const OrderButton({
+    Key? key,
+    required this.cart,
+  }) : super(key: key);
+
+  final Cart cart;
+
+  @override
+  State<OrderButton> createState() => _OrderButtonState();
+}
+
+class _OrderButtonState extends State<OrderButton> {
+  var _isLoading = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return FlatButton(
+      child: _isLoading
+          ? Container(
+              height: 15,
+              width: 15,
+              child: CircularProgressIndicator(),
+            )
+          : Text("Order Now!"),
+      onPressed: (widget.cart.totalAmount <= 0 || _isLoading)
+          ? null
+          : () async {
+              // don't really care about listening to changes
+              // I just want to dispatch this action
+              _isLoading = true;
+              setState(() {});
+              await Provider.of<Orders>(context, listen: false).addOrder(
+                widget.cart.items.values.toList(),
+                widget.cart.totalAmount,
+              );
+              _isLoading = false;
+              setState(() {});
+              // clear cart is still listening to changes because it is in the widget context with the provider
+
+              widget.cart.clearCart();
+            },
     );
   }
 }
